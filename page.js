@@ -24,7 +24,8 @@ function render() {
     task.addEventListener('input', () => {
       taskModel[i].content = tasks[i].value;
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => saveData(), SAVE_DELAY_MS);
+      // Don't render here since we don't want to lose the current selection.
+      saveTimeout = setTimeout(() => save(), SAVE_DELAY_MS);
     });
     tasks.push(task);
 
@@ -36,7 +37,7 @@ function render() {
     pin.textContent = '📌';
     pin.addEventListener('click', () => {
       taskModel[i].status = isPinned(taskModel[i]) ? '' : PINNED_STATUS;
-      saveData();
+      saveAndRender();
     });
 
     const row = document.createElement('div');
@@ -46,14 +47,18 @@ function render() {
   }
 }
 
-function saveData() {
+function saveAndRender() {
+  save();
+  render();
+}
+
+function save() {
   taskModel.sort((a, b) => {
     const aPinned = isPinned(a)
     const bPinned = isPinned(b);
     return aPinned && !bPinned ? -1 : !aPinned && bPinned ? 1 : 0;
   });
   chrome.storage.sync.set({[TASKS_KEY]: taskModel});
-  render();
 }
 
 function move(amount) {
@@ -89,7 +94,7 @@ window.onload = () => {
   document.addEventListener("visibilitychange", e => {
     if (document.visibilityState !== 'hidden') {
       taskModel = taskModel.filter(x => x.content !== '')
-      saveData();
+      saveAndRender();
     }
   });
   chrome.storage.onChanged.addListener(() => refreshTasksFromStorage());
