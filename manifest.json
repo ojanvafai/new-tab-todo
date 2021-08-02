@@ -1,9 +1,11 @@
 {
-  "name": "new tab todo",
+  "name": "fixed todo",
   "version": "0.1",
+  "description": "Todo list with a fixed number of tasks",
   "manifest_version": 3,
-  "chrome_url_overrides": {
-    "newtab": "page.html"
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
   },
-  "permissions": ["storage"]
+  "permissions": ["storage", "tabs"]
 }
